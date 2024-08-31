@@ -1,7 +1,7 @@
 # Prevent student's submission upload
-./student_submission
-./outputs
-./grading_codes
+student_submission/
+outputs/
+grading_codes/
 
 # Exceptions
 
