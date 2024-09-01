@@ -1,7 +1,11 @@
 # Prevent student's submission upload
 student_submission/
 outputs/
-grading_codes/
+grading_cases/
+
+*.sh
+*.txt
+*.csv
 
 # Exceptions
 
