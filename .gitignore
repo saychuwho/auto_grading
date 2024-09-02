@@ -1,11 +1,10 @@
 # Prevent student's submission upload
-student_submission/
+# student_submission/
 outputs/
-grading_cases/
+# grading_cases/
+.vscode/
 
-*.sh
-*.txt
-*.csv
+tmp*
+.samplelock
 
 # Exceptions
-
