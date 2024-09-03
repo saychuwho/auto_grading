@@ -1,5 +1,5 @@
 # Prevent student's submission upload
-# student_submission/
+student_submission/sample_*/
 outputs/
 # grading_cases/
 .vscode/

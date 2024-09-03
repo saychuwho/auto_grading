@@ -47,8 +47,16 @@ chmod 755 ./sample_print.sh
 - `./sample_print.sh` : After executing `./sample.sh`, check results that `./sample.sh` made.
   - how to use: `option student_id [problem_num]`
   - option `1` : print result file. (ex: `1 201911010` prints student id `201911010`'s result file.)
+
+    <img src="./img/sample_print_demo_1.png" width="30%">
+
   - option `2` : print student's submitted source code, compiled code, compile result. (ex: `2 201911010 2` prints student id `201911010`'s problem 2 source code, compiled code, compiled result.)
-  - optino `3` : print compiled program's case output, `diff` results. (ex: `3 201911010 1` prints student id `201911010`'s problem 2 case output and `diff` results.)
+
+    <img src="./img/sample_print_demo_2.png" width="30%">
+
+  - option `3` : print compiled program's case output, `diff` results. (ex: `3 201911010 1` prints student id `201911010`'s problem 2 case output and `diff` results.)
+
+    <img src="./img/sample_print_demo_3.png" width="30%">
 
 ## Features
 
