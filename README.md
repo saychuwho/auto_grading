@@ -20,6 +20,7 @@ It is aimed to grade assignments in DGIST "CSE201 - Object-Oriented Programming"
     - [Combine student's submission with grading codes](#combine-students-submission-with-grading-codes)
     - [Compile and execute grading codes](#compile-and-execute-grading-codes)
     - [Analyze outputs of grading code and score codes](#analyze-outputs-of-grading-code-and-score-codes)
+  - [Update List](#update-list)
 
 ## How to use
 
@@ -103,3 +104,7 @@ Analyze `*_output.txt`, `*_compile_result.txt`. `*_output_diff.txt` inside `./ou
 Result files content combined in `./sample_result.csv`.
 
 Proper problem cases should be in `./grading_cases`.
+
+## Update List
+
+- 2024.09.02 : initial commit. Updated sample program
