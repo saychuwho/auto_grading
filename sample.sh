@@ -3,25 +3,55 @@
 # sample : sample shell script for development
 
 # 0. set hw informations / check if sample.sh already executed
-
 # Prevent running sample.sh when it already executed.
+PROGNAME=$(basename $0)
 if [ -f "./.samplelock" ]; then
-    echo "sample.sh already executed. Run ./sample_reset.sh to reset."
-    exit 
+    echo "$PROGNAME: $PROGNAME already executed. Run ./sample_reset.sh to reset." >&2
+    exit 1
 fi
 
+# make lockfile
 > ".samplelock"
 
-# Set hw information. 
-HW_NAME=hw1
-HW_1=1
-HW_2=2
-HW_3=3
+# Set hw information.
+HW_LIST="./sample_hw_info.txt"
+STUDENT_LIST="./sample_student_list.txt"
+STUDENT_LIST_SUBMITTED="./sample_student_list_submitted.txt"
 
-HW_1_CASE=3
-HW_2_CASE=3
-HW_3_CASE=3
+declare -a HW_INFO
+while read value; do
+    HW_INFO+=($value)
+done < $HW_LIST
 
+HW_NAME=${HW_INFO[0]}
+HW_INFO_PROB_NUM=${HW_INFO[1]}
+HW_INFO_PROB_START=2
+HW_INFO_CASE_START=$((HW_INFO_PROB_START+HW_INFO_PROB_NUM))
+HW_INFO_LEN=${#HW_INFO[@]}
+
+# Set HW_PROB, HW_PROB_CASE
+declare -a HW_PROB
+declare -a HW_PROB_CASE
+
+for ((prob_num=$HW_INFO_PROB_START; prob_num<$HW_INFO_CASE_START; prob_num++)); do
+    HW_PROB+=( ${HW_INFO[prob_num]} )
+    case_index=$((prob_num+HW_INFO_PROB_NUM))
+    HW_PROB_CASE+=( ${HW_INFO[case_index]} )
+done
+
+# Print information of HW
+echo "< $HW_NAME scoring system >"
+echo "> # of problem : ${HW_INFO_PROB_NUM}"
+for ((prob_num=0; prob_num<$HW_INFO_PROB_NUM; prob_num++)); do
+    printf "> Problem ${HW_PROB[prob_num]}: \n"
+
+    case_len=${HW_PROB_CASE[prob_num]}
+
+    for ((case_num=0; case_num<${case_len}; case_num++)); do
+        printf "\tcase $((case_num+1))\n"
+    done
+
+done
 
 
 # 1. unzip sample submission
@@ -43,8 +73,7 @@ while read sid; do
         printf ">>> no zip file submitted\n"
     fi
 
-done < sample_student_list.txt
-
+done < $STUDENT_LIST
 
 
 # 2. combine submission and case main
@@ -56,52 +85,25 @@ while read sid; do
     mkdir "./outputs/sample_${tmp_sid}"
 
     # copy student submission to make case main
-    # hw_1
-    case=1
-    while [ $case -le $HW_1_CASE ]; do
-        submission_file="./student_submission/sample_${tmp_sid}/sample_${HW_NAME}_${HW_1}_${tmp_sid}.cpp"
-        output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${HW_1}_case_${case}_${tmp_sid}.cpp"
-        grading_case="./grading_cases/sample_${HW_NAME}_${HW_1}_case_${case}.cpp"
+    for ((prob_num=0; prob_num<$HW_INFO_PROB_NUM; prob_num++)); do
+        prob_name="${HW_PROB[prob_num]}"
+        case_len="${HW_PROB_CASE[prob_num]}"
+        submission_file="./student_submission/sample_${tmp_sid}/sample_${HW_NAME}_${prob_name}_${tmp_sid}.cpp"
         
-        if [ -f $submission_file ]; then
-            cat "${submission_file}" >> "${output_file}"
-            printf "\n" >> "${output_file}"
-            cat "${grading_case}" >> "${output_file}"
-        fi
-        case=$((case+1))
+        for ((case_num=1; case_num<$((case_len+1)); case_num++)); do
+            output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${prob_name}_case_${case_num}_${tmp_sid}.cpp"
+            grading_case="./grading_cases/sample_${HW_NAME}_${prob_name}_case_${case_num}.cpp"
+            
+            if [ -f $submission_file ]; then
+                cat "${submission_file}" >> "${output_file}"
+                printf "\n" >> "${output_file}"
+                cat "${grading_case}" >> "${output_file}"
+            fi
+        done
+
     done
 
-    # hw_2
-    case=1
-    while [ $case -le $HW_2_CASE ]; do
-        submission_file="./student_submission/sample_${tmp_sid}/sample_${HW_NAME}_${HW_2}_${tmp_sid}.cpp"
-        output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${HW_2}_case_${case}_${tmp_sid}.cpp"
-        grading_case="./grading_cases/sample_${HW_NAME}_${HW_2}_case_${case}.cpp"
-        
-        if [ -f $submission_file ]; then
-            cat "${submission_file}" >> "${output_file}"
-            printf "\n" >> "${output_file}"
-            cat "${grading_case}" >> "${output_file}"
-        fi
-        case=$((case+1))
-    done
-
-    # hw_3
-    case=1
-    while [ $case -le $HW_3_CASE ]; do
-        submission_file="./student_submission/sample_${tmp_sid}/sample_${HW_NAME}_${HW_3}_${tmp_sid}.cpp"
-        output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${HW_3}_case_${case}_${tmp_sid}.cpp"
-        grading_case="./grading_cases/sample_${HW_NAME}_${HW_3}_case_${case}.cpp"
-        
-        if [ -f $submission_file ]; then
-            cat "${submission_file}" >> "${output_file}"
-            printf "\n" >> "${output_file}"
-            cat "${grading_case}" >> "${output_file}"
-        fi
-        case=$((case+1))
-    done
-
-done < sample_student_list_submitted.txt
+done < $STUDENT_LIST_SUBMITTED
 
 
 
@@ -114,97 +116,39 @@ while read sid; do
 
     printf "\n> student id: ${tmp_sid}\n"
 
-    # hw 1
-
-    echo ">> HW1 compile starts"
-
-    case=1
-    while [ $case -le $HW_1_CASE ]; do
-
-        printf ">>> case ${case} > "
-
-        grading_case="./grading_cases/sample_${HW_NAME}_${HW_1}_case_${case}.output"
-        output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${HW_1}_case_${case}_${tmp_sid}"
-        if [ -f "${output_file}.cpp" ]; then
-            g++ -o "${output_file}.out" "${output_file}.cpp" > "${output_file}_compile_result.txt" 2>&1
-        else
-            printf "E: file does not exist\n"
-            case=$((case+1))
-            continue
-        fi
+    for ((prob_num=0; prob_num<$HW_INFO_PROB_NUM; prob_num++)); do
+        prob_name=${HW_PROB[prob_num]}
+        case_len=${HW_PROB_CASE[prob_num]}
         
-        if [ "$(cat ${output_file}_compile_result.txt | wc -l)" -ge 1 ]; then
-            printf " E: compile error\n"
-        else
-            "${output_file}.out" > "${output_file}_output.txt" 
-            printf " compile success\n"
-            diff -u --strip-trailing-cr "${grading_case}" "${output_file}_output.txt" >> "${output_file}_output_diff.txt"
-        fi
+        echo ">> HW ${prob_name} compile starts"
+       
+        for ((case_num=1; case_num<$((case_len+1)); case_num++)); do
+            
+            printf ">>> case ${case_num} > "
 
-        case=$((case+1))
+            grading_case="./grading_cases/sample_${HW_NAME}_${prob_name}_case_${case_num}.output"
+            output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${prob_name}_case_${case_num}_${tmp_sid}"
+            
+            if [ -f "${output_file}.cpp" ]; then
+                g++ -o "${output_file}.out" "${output_file}.cpp" > "${output_file}_compile_result.txt" 2>&1
+            else
+                printf "E: file does not exist\n"
+                continue
+            fi
+            
+            if [ "$(cat ${output_file}_compile_result.txt | wc -l)" -ge 1 ]; then
+                printf " E: compile error\n"
+            else
+                "${output_file}.out" > "${output_file}_output.txt" 
+                printf " compile success\n"
+                diff -u --strip-trailing-cr "${grading_case}" "${output_file}_output.txt" >> "${output_file}_output_diff.txt"
+            fi
+
+        done
+
     done
 
-    # hw 2
-
-    echo ">> HW2 compile starts"
-
-    case=1
-    while [ $case -le $HW_2_CASE ]; do
-
-        printf ">>> case ${case} > "
-
-        grading_case="./grading_cases/sample_${HW_NAME}_${HW_2}_case_${case}.output"
-        output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${HW_2}_case_${case}_${tmp_sid}"
-        if [ -f "${output_file}.cpp" ]; then
-            g++ -o "${output_file}.out" "${output_file}.cpp" > "${output_file}_compile_result.txt" 2>&1
-        else
-            printf "E: file does not exist\n"
-            case=$((case+1))
-            continue
-        fi
-
-        if [ "$(cat ${output_file}_compile_result.txt | wc -l)" -ge 1 ]; then
-            printf " E: compile error\n"
-        else
-            "${output_file}.out" > "${output_file}_output.txt" 
-            printf " compile success\n"
-            diff -u --strip-trailing-cr "${grading_case}" "${output_file}_output.txt" >> "${output_file}_output_diff.txt"
-        fi
-
-        case=$((case+1))
-    done
-
-    # hw 3
-
-    echo ">> HW3 compile starts"
-
-    case=1
-    while [ $case -le $HW_3_CASE ]; do
-
-        printf ">>> case ${case} > "
-
-        grading_case="./grading_cases/sample_${HW_NAME}_${HW_3}_case_${case}.output"
-        output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${HW_3}_case_${case}_${tmp_sid}"
-        if [ -f "${output_file}.cpp" ]; then
-            g++ -o "${output_file}.out" "${output_file}.cpp" > "${output_file}_compile_result.txt" 2>&1
-        else
-            printf "E: file does not exist\n"
-            case=$((case+1))
-            continue
-        fi
-
-        if [ "$(cat ${output_file}_compile_result.txt | wc -l)" -ge 1 ]; then
-            printf " E: compile error\n"
-        else
-            "${output_file}.out" > "${output_file}_output.txt"
-            printf " compile success\n"
-            diff -u --strip-trailing-cr "${grading_case}" "${output_file}_output.txt" >> "${output_file}_output_diff.txt"
-        fi
-
-        case=$((case+1))
-    done
-
-done < sample_student_list_submitted.txt
+done < $STUDENT_LIST_SUBMITTED
 
 
 
@@ -218,57 +162,48 @@ while read sid; do
     printf "> student id: ${tmp_sid}\n"
 
     result_txt="./outputs/sample_${tmp_sid}/sample_${tmp_sid}_result.txt"
-    printf "student id: ${tmp_sid}\n" >> "$result_txt"
+    # printf "student id: ${tmp_sid}\n" >> "$result_txt"
     
-    # hw 1
-    case=1
-    while [ $case -le $HW_1_CASE ]; do
-        output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${HW_1}_case_${case}_${tmp_sid}"
-        if [ ! -f "${output_file}_compile_result.txt" ]; then
-            printf "${HW_1}-case-${case}: file not submitted\n" >> "$result_txt"
-        elif [ "$(cat ${output_file}_compile_result.txt | wc -l)" -ge 1 ]; then
-            printf "${HW_1}-case-${case}: compile error\n" >> "$result_txt"
-        elif [ "$(cat ${output_file}_output_diff.txt | wc -l)" -ge 1 ]; then
-            printf "${HW_1}-case-${case}: output does not match with case\n" >> "$result_txt"
-        else
-            printf "${HW_1}-case-${case}: pass\n" >> "$result_txt"
-        fi
+    for ((prob_num=0; prob_num<$HW_INFO_PROB_NUM; prob_num++)); do
+        prob_name="${HW_PROB[prob_num]}"
+        case_len="${HW_PROB_CASE[prob_num]}"
 
-        case=$((case+1))
+        for ((case_num=1; case_num<$((case_len+1)); case_num++)); do
+
+            output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${prob_name}_case_${case_num}_${tmp_sid}"
+            
+            if [ ! -f "${output_file}_compile_result.txt" ]; then
+                printf "${prob_name}-case-${case_num}: file-not-submitted\n" >> "$result_txt"
+            elif [ "$(cat ${output_file}_compile_result.txt | wc -l)" -ge 1 ]; then
+                printf "${prob_name}-case-${case_num}: compile-error\n" >> "$result_txt"
+            elif [ "$(cat ${output_file}_output_diff.txt | wc -l)" -ge 1 ]; then
+                printf "${prob_name}-case-${case_num}: fail\n" >> "$result_txt"
+            else
+                printf "${prob_name}-case-${case_num}: pass\n" >> "$result_txt"
+            fi
+
+        done
+
     done
+done < $STUDENT_LIST_SUBMITTED
 
-    # hw 2
-    case=1
-    while [ $case -le $HW_2_CASE ]; do
-        output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${HW_2}_case_${case}_${tmp_sid}"
-        if [ ! -f "${output_file}_compile_result.txt" ]; then
-            printf "${HW_2}-case-${case}: file not submitted\n" >> "$result_txt"
-        elif [ "$(cat ${output_file}_compile_result.txt | wc -l)" -ge 1 ]; then
-            printf "${HW_2}-case-${case}: compile error\n" >> "$result_txt"
-        elif [ "$(cat ${output_file}_output_diff.txt | wc -l)" -ge 1 ]; then
-            printf "${HW_2}-case-${case}: output does not match with case\n" >> "$result_txt"
-        else
-            printf "${HW_2}-case-${case}: pass\n" >> "$result_txt"
-        fi
 
-        case=$((case+1))
-    done
 
-    # hw 3
-    case=1
-    while [ $case -le $HW_3_CASE ]; do
-        output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${HW_3}_case_${case}_${tmp_sid}"
-        if [ ! -f "${output_file}_compile_result.txt" ]; then
-            printf "${HW_3}-case-${case}: file not submitted\n" >> "$result_txt"
-        elif [ "$(cat ${output_file}_compile_result.txt | wc -l)" -ge 1 ]; then
-            printf "${HW_3}-case-${case}: compile error\n" >> "$result_txt"
-        elif [ "$(cat ${output_file}_output_diff.txt | wc -l)" -ge 1 ]; then
-            printf "${HW_3}-case-${case}: output does not match with case\n" >> "$result_txt"
-        else
-            printf "${HW_3}-case-${case}: pass\n" >> "$result_txt"
-        fi
+# 5. Print Reports using sample_print.sh
 
-        case=$((case+1))
-    done
+printf "\n5. Print reports using sample_print.sh\n"
+while read sid; do
+    tmp_sid=$(echo "$sid" | grep -oe '^[0-9]*')
 
-done < sample_student_list_submitted.txt
+    printf "> student id: ${tmp_sid}\n"
+    ./sample_print.sh $tmp_sid
+done < $STUDENT_LIST
+
+
+# 6. Score student's submission based on result file and make one result.csv
+
+printf "\n6. Score student submission based on result file and make one result.csv\n"
+python sample_grade.py
+
+
+printf "\n<<< FINISHED >>>\n"
