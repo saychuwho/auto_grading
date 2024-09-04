@@ -52,6 +52,14 @@ print_result (){
     echo '```'
 }
 
+# input student_id
+print_zip_ls (){
+    printf "\n## Inside .zip\n"
+    echo '```'
+    unzip -l "./student_submission/sample_${1}.zip"
+    echo '```'
+}
+
 # input prob_num student_id
 print_source_code (){
     echo "### problem-${1} submitted source code"
@@ -151,6 +159,8 @@ if [ $(grep "${STUDENT_ID}" ./sample_student_list_submitted.txt | wc -w) -eq 0 ]
 
 else
     print_result $STUDENT_ID >> $report_file
+
+    print_zip_ls $STUDENT_ID >> $report_file
 
     # print source code
     printf "\n## Submitted Source Code\n" >> $report_file

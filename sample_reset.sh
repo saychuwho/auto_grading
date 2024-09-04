@@ -21,8 +21,9 @@ done < $STUDENT_LIST
 # remove sample_student_list_submitted.txt
 rm *_submitted.txt
 
-# remove .samplelock
-rm "./.samplelock"
-
 # remove sample_result.csv
 rm "./sample_result.csv"
+rm "./sample_result_score.csv"
+
+# remove .samplelock
+rm "./.samplelock"
