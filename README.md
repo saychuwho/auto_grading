@@ -107,4 +107,5 @@ Proper problem cases should be in `./grading_cases`.
 
 ## Update List
 
+- 2024.09.04 : Re-design `sample.sh`, `sample_print.sh`. Add `sample_guide.py`
 - 2024.09.02 : initial commit. Updated sample program
