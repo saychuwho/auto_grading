@@ -141,6 +141,7 @@ Proper problem cases should be in `./grading_cases`.
 
 ## Update List
 
+- 2024.09.05 : Change scoring system. Result file is now in .json form
 - 2024.09.04 : Updated `sample_guide.py` to calculate scores, add `sample_score_info_make.sh`, `sample_hw_info_score`.json
 - 2024.09.04 : Re-design `sample.sh`, `sample_print.sh`. Add `sample_guide.py`
 - 2024.09.02 : initial commit. Updated sample program
