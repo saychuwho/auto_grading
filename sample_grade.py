@@ -56,7 +56,7 @@ f_score.write(csv_header)
 
 # write student's result, score
 for s_id in student_list:
-    student_result_file = f"./outputs/sample_{s_id}/sample_{s_id}_result.txt"
+    student_result_file = f"./outputs/sample_{s_id}/sample_{s_id}_result.json"
     student_result = f"{s_id},"
     student_score_result = f"{s_id},"
 
@@ -68,24 +68,33 @@ for s_id in student_list:
         student_score_sum = 0
         for i in range(len(hw_prob)):
             for j in range(hw_prob_case[i]):
-                case_score = score_data[f"{hw_prob[i]}-case-{j+1}"]["zip-file-not-submitted"]
+                case_score = score_data[f"{hw_prob[i]}"]["zip-file-not-submitted"]
                 student_score_result += f"{case_score},"
                 student_score_sum += case_score
         student_score_result += f"{student_score_sum},"
 
     # student did submitted score
     else:
-        f_student_result = open(student_result_file, 'r')
+        with open(student_result_file, 'r') as f:
+            student_case_result=json.load(f)
 
         student_score_sum = 0
         for i in range(len(hw_prob)):
             for j in range(hw_prob_case[i]):
-                _, case_output = f_student_result.readline().strip().split()
-                student_result += f"{case_output},"
+                prob_output = student_case_result[f"{hw_prob[i]}"]
+                if prob_output == "file-not-submitted":
+                    student_result += f"{prob_output},"
+                    prob_score = score_data[f"{hw_prob[i]}"][prob_output]
+                    student_score_result += f"{prob_score},"
+                    student_score_sum += prob_score                   
                 
-                case_score = score_data[f"{hw_prob[i]}-case-{j+1}"][case_output]
-                student_score_result += f"{case_score},"
-                student_score_sum += case_score
+                else:
+                    case_output = student_case_result[f"{hw_prob[i]}-case-{j+1}"]
+                    student_result += f"{case_output},"
+                    
+                    case_score = score_data[f"{hw_prob[i]}-case-{j+1}"][case_output]
+                    student_score_result += f"{case_score},"
+                    student_score_sum += case_score
         
         student_result += ","
         student_score_result += f"{student_score_sum},"

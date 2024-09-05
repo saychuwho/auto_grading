@@ -161,30 +161,41 @@ while read sid; do
 
     printf "> student id: ${tmp_sid}\n"
 
-    result_txt="./outputs/sample_${tmp_sid}/sample_${tmp_sid}_result.txt"
-    # printf "student id: ${tmp_sid}\n" >> "$result_txt"
+    result_json="./outputs/sample_${tmp_sid}/sample_${tmp_sid}_result.json"
+    # printf "student id: ${tmp_sid}\n" >> "$result_json"
     
+    printf "{\n" >> $result_json
+
     for ((prob_num=0; prob_num<$HW_INFO_PROB_NUM; prob_num++)); do
         prob_name="${HW_PROB[prob_num]}"
         case_len="${HW_PROB_CASE[prob_num]}"
 
-        for ((case_num=1; case_num<$((case_len+1)); case_num++)); do
+        output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${prob_name}_case_1_${tmp_sid}"
+        if [ ! -f "${output_file}_compile_result.txt" ]; then
+            printf "\"${prob_name}\" : \"file-not-submitted\",\n" >> "$result_json"
+        else
+            printf "\"${prob_name}\": \"file-submitted\",\n" >> "$result_json"
+        
 
-            output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${prob_name}_case_${case_num}_${tmp_sid}"
-            
-            if [ ! -f "${output_file}_compile_result.txt" ]; then
-                printf "${prob_name}-case-${case_num}: file-not-submitted\n" >> "$result_txt"
-            elif [ "$(cat ${output_file}_compile_result.txt | wc -l)" -ge 1 ]; then
-                printf "${prob_name}-case-${case_num}: compile-error\n" >> "$result_txt"
-            elif [ "$(cat ${output_file}_output_diff.txt | wc -l)" -ge 1 ]; then
-                printf "${prob_name}-case-${case_num}: fail\n" >> "$result_txt"
-            else
-                printf "${prob_name}-case-${case_num}: pass\n" >> "$result_txt"
-            fi
+            for ((case_num=1; case_num<$((case_len+1)); case_num++)); do
 
-        done
+                output_file="./outputs/sample_${tmp_sid}/${HW_NAME}_${prob_name}_case_${case_num}_${tmp_sid}"
+                
+                if [ "$(cat ${output_file}_compile_result.txt | wc -l)" -ge 1 ]; then
+                    printf "\"${prob_name}-case-${case_num}\" : \"compile-error\",\n" >> "$result_json"
+                elif [ "$(cat ${output_file}_output_diff.txt | wc -l)" -ge 1 ]; then
+                    printf "\"${prob_name}-case-${case_num}\" : \"fail\",\n" >> "$result_json"
+                else
+                    printf "\"${prob_name}-case-${case_num}\" : \"pass\",\n" >> "$result_json"
+                fi
+
+            done
+        fi
 
     done
+    printf "\"dummy\" : \"dummy\"\n" >> "$result_json"
+    printf "}\n" >> "$result_json"
+
 done < $STUDENT_LIST_SUBMITTED
 
 

@@ -48,7 +48,7 @@ usage (){
 print_result (){
     printf "\n## Result\n"
     echo '```'
-    cat "./outputs/sample_${1}/sample_${1}_result.txt"
+    cat "./outputs/sample_${1}/sample_${1}_result.json"
     echo '```'
 }
 

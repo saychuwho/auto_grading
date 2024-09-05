@@ -31,11 +31,21 @@ print_object (){
     case_name="${1}-case-${2}"
     cat <<- _EOF_
     "${case_name}": {
-        "zip-file-not-submitted" : ,
-        "file-not-submitted" : ,
         "compile-error" : ,
         "fail" : ,
         "pass" : 
+    },
+_EOF_
+}
+
+# input prob_name
+print_problem_object (){
+    local case_name="${1}"
+    cat <<- _EOF_
+    "${case_name}": {
+        "zip-file-not-submitted" : ,
+        "file-not-submitted" : , 
+        "file-submitted" :
     },
 _EOF_
 }
@@ -53,9 +63,12 @@ for ((prob_num=0;prob_num<$HW_INFO_PROB_NUM;prob_num++)); do
     prob_name="${HW_PROB[prob_num]}"
     case_len="${HW_PROB_CASE[prob_num]}"
 
+    print_problem_object $prob_name >> $JSON_FILE
+
     for ((case_num=1; case_num<$((case_len+1)); case_num++)); do
         print_object $prob_name $case_num >> $JSON_FILE
     done
 done
 
+printf "\"dummy\" : \"dummy\"\n" >> $JSON_FILE
 printf '}\n' >> $JSON_FILE
