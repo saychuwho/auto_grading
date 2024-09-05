@@ -80,6 +80,10 @@ for s_id in student_list:
 
         student_score_sum = 0
         for i in range(len(hw_prob)):
+            prob_output = student_case_result[f"{hw_prob[i]}"]
+            if prob_output == "file-submitted":
+                student_score_sum += score_data[f"{hw_prob[i]}"][prob_output]
+
             for j in range(hw_prob_case[i]):
                 prob_output = student_case_result[f"{hw_prob[i]}"]
                 if prob_output == "file-not-submitted":
